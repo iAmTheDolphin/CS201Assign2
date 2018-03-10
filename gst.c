@@ -46,9 +46,13 @@ static void incrementGSTNODEcount(GSTNODE *n) {
     n->count++;
 }
 
+static void decrementGSTNODEcount(GSTNODE *n) {
+    n->count--;
+}
+
 static void displayGSTNODE(void *n, FILE *fp) {
     ((GSTNODE *) n)->display(getGSTNODEvalue(n), fp);
-    printf("(%d)", getGSTNODEcount(n));
+    //printf("[%d]", getGSTNODEcount(n));
 }
 
 static int compareGSTNODE(void *v, void *w) {
@@ -61,8 +65,11 @@ static void freeGSTNODE(void *n) {
 }
 
 
+
+
 struct gst {
     int size;
+    int duplicates;
     BST *tree;
     void (*display)(void *v,FILE *fp);
     int (* compare) (void *v, void *w);
@@ -100,6 +107,7 @@ void insertGST(GST *g,void *v) {
     BSTNODE *bnode = findBST(g->tree, n);
     if(bnode) {
         incrementGSTNODEcount(getBSTNODEvalue(bnode));
+        g->duplicates++;
         free(n);
     }
     else {
@@ -114,8 +122,11 @@ void displayGST(GST *g,FILE *fp) {
 
 
 int findGSTcount(GST *g,void *v) {
-
     //calls findGST then gets the count out of it
+    GSTNODE *n = newGSTNODE(v, g->display, g->compare, g->freer);
+    BSTNODE *b = findBST(g->tree, n);
+    free(n);
+    return getGSTNODEcount(getBSTNODEvalue(b));
 
 }
 
@@ -125,16 +136,49 @@ void *findGST(GST *g,void *v) {
     //needs to call findBST
 
     //to do that we need to recreate the node
-
+    GSTNODE *n = newGSTNODE(v, g->display, g->compare, g->freer);
+    BSTNODE *b = findBST(g->tree, n);
+    free(n);
+    if(b)return getGSTNODEvalue(getBSTNODEvalue(b));
+    else return 0;
 }
 
 void *deleteGST(GST *g,void *v) {
 
+    GSTNODE *n = newGSTNODE(v, g->display, g->compare, g->freer);
 
+    BSTNODE *bnode = findBST(g->tree, n);
+    if(bnode && getGSTNODEcount(getBSTNODEvalue(bnode)) > 1) {
+        g->duplicates--;
+        decrementGSTNODEcount(getBSTNODEvalue(bnode));
+    }
+
+    bnode = deleteBST(g->tree, n);
+
+    if(bnode) return getGSTNODEvalue(getBSTNODEvalue(bnode));
+    else return 0;
+
+}
+
+int duplicates(GST *g) {
+    return g->duplicates;
 }
 
 
 int sizeGST(GST *g) {
     //returns the size of the gst
-    return g->size;
+    return sizeBST(g->tree) + g->duplicates;
+}
+
+extern void displayGSTdebug(GST *g,FILE *fp) {
+    displayBST(g->tree, fp);
+}
+
+extern void freeGST(GST *g) {
+
+}
+
+extern void statisticsGST(GST *g,FILE *fp) {
+    printf("Duplicates: %d\n", g->duplicates);
+    statisticsBST(g->tree, fp);
 }

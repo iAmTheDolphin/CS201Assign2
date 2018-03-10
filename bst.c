@@ -404,12 +404,21 @@ void decoratedBST (BST *t, FILE *fp) {
             }
             t->display(getBSTNODEvalue(n), fp);
             if(n == t->root) {
+                printf("(");
+                t->display(getBSTNODEvalue(n), fp);
+                printf(")");
                 printf("X");
             }
             else if(isLeftChild(n)) {
+                printf("(");
+                t->display(getBSTNODEvalue(getBSTNODEparent(n)), fp);
+                printf(")");
                 printf("L");
             }
             else {
+                printf("(");
+                t->display(getBSTNODEvalue(getBSTNODEparent(n)), fp);
+                printf(")");
                 printf("R");
             }
             //dequeues the node just displayed
