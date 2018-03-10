@@ -385,6 +385,11 @@ void displayBSTdebug(BST *t,FILE *fp) {
     freeQUEUE(items);
 }
 
+void decoratedBST (BST *b, FILE *fp) {
+
+}
+
+
 int max = -1;
 int min = -1;
 
