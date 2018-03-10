@@ -109,7 +109,7 @@ void insertGST(GST *g,void *v) {
 }
 
 void displayGST(GST *g,FILE *fp) {
-    displayBSTdebug(g->tree, fp);
+    decoratedBST(g->tree, fp);
 }
 
 

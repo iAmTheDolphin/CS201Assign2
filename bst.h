@@ -34,6 +34,7 @@ extern void    pruneLeafBST(BST *t,BSTNODE *leaf);
 extern int     sizeBST(BST *t);
 extern void    statisticsBST(BST *t,FILE *fp);
 extern void    displayBST(BST *t,FILE *fp);
+extern void    decoratedBST(BST *t,FILE *fp);
 extern void    displayBSTdebug(BST *t,FILE *fp);
 extern void    freeBST(BST *t);
 #endif

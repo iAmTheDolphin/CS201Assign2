@@ -385,8 +385,50 @@ void displayBSTdebug(BST *t,FILE *fp) {
     freeQUEUE(items);
 }
 
-void decoratedBST (BST *b, FILE *fp) {
+void decoratedBST (BST *t, FILE *fp) {
+    BSTNODE *n = t->root;
+    QUEUE *items = newQUEUE(t->display, t->free);
+    if(n) enqueue(items, n);
+    int nodes = sizeQUEUE(items);
 
+    //loops through the whole list
+    int level = 0;
+    while (nodes > 0) {
+        printf("%d: ", level);
+        //loops through the nodes at the level
+        while(nodes > 0) {
+            //pulls out the next node to work with
+            n = peekQUEUE(items);
+            if(isLeaf(n)) {
+                printf("=");
+            }
+            t->display(getBSTNODEvalue(n), fp);
+            if(n == t->root) {
+                printf("X");
+            }
+            else if(isLeftChild(n)) {
+                printf("L");
+            }
+            else {
+                printf("R");
+            }
+            //dequeues the node just displayed
+            dequeue(items);
+            //if there is a left BSTNODE to the current node we enqueue it
+            if(getBSTNODEleft(n) != 0) enqueue(items, getBSTNODEleft(n));
+            //if there is a left BSTNODE to the current node we enqueue it
+            if(getBSTNODEright(n) != 0) enqueue(items, getBSTNODEright(n));
+            //decrement nodes left in current level
+            nodes--;
+            if(nodes > 0) printf(" ");
+        }
+        //loop ends when there are no nodes left in current level
+        //set nodes to the amount of nodes in the next level.
+        nodes = sizeQUEUE(items);
+        printf("\n");
+        level++;
+    }
+    freeQUEUE(items);
 }
 
 
