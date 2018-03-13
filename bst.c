@@ -33,7 +33,7 @@ void *getBSTNODEvalue(BSTNODE *n) {
 }
 
 void setBSTNODEvalue(BSTNODE *n,void *value) {
-    n->value = value;
+    if(n) n->value = value;
 }
 
 BSTNODE *getBSTNODEleft(BSTNODE *n) {
@@ -42,7 +42,7 @@ BSTNODE *getBSTNODEleft(BSTNODE *n) {
 }
 
 void setBSTNODEleft(BSTNODE *n,BSTNODE *replacement) {
-    n->left = replacement;
+    if(n) n->left = replacement;
 }
 
 BSTNODE *getBSTNODEright(BSTNODE *n) {
@@ -51,20 +51,21 @@ BSTNODE *getBSTNODEright(BSTNODE *n) {
 }
 
 void setBSTNODEright(BSTNODE *n,BSTNODE *replacement) {
-    n->right = replacement;
+    if(n) n->right = replacement;
 }
 
 BSTNODE *getBSTNODEparent(BSTNODE *n) {
-    return n->parent;
+    if(n) return n->parent;
+    else return 0;
 }
 
 void setBSTNODEparent(BSTNODE *n,BSTNODE *replacement) {
-    n->parent = replacement;
+    if(n) n->parent = replacement;
 }
 
 void freeBSTNODE(BSTNODE *n,void (*f)(void *)) {
     if (f != 0) {  f(n->value); }
-    free(n);
+    if(n) free(n);
 }
 //endregion
 

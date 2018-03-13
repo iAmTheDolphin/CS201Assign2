@@ -11,6 +11,9 @@
 
 typedef  struct gstnode GSTNODE;
 
+int debug = 1;
+
+
 struct gstnode {
     int count;
     void *value;
@@ -152,19 +155,23 @@ void *findGST(GST *g,void *v) {
 
 void *deleteGST(GST *g,void *v) {
     GSTNODE *n = newGSTNODE(v, g->display, g->compare, g->freer);
-
     BSTNODE *bnode = findBST(g->tree, n);
+    free(n);
+
+    void *temp = 0; //the value in GSTNODE that will be returned
+
     if(bnode && getGSTNODEcount(getBSTNODEvalue(bnode)) > 1) {
         g->duplicates--;
         decrementGSTNODEcount(getBSTNODEvalue(bnode));
+        temp = getGSTNODEvalue(getBSTNODEvalue(bnode));
     }
-
-    bnode = deleteBST(g->tree, n);
-
-    free(n);
-
-    if(bnode) return getGSTNODEvalue(getBSTNODEvalue(bnode));
-    else return 0;
+    else if(bnode) { //the count is 1 so it deletes it
+        bnode = deleteBST(g->tree, getBSTNODEvalue(bnode));
+        temp = getGSTNODEvalue(getBSTNODEvalue(bnode));
+        free(getBSTNODEvalue(bnode));
+        freeBSTNODE(bnode, 0);
+    }
+    return temp;
 }
 
 

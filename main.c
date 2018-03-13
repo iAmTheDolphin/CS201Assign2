@@ -17,6 +17,7 @@ main(void)
     GST *p = newGST(displayINTEGER,compareINTEGER,freeINTEGER);
     insertGST(p,newINTEGER(3));
     insertGST(p,newINTEGER(2));
+
     printf("GST:\n");
     displayGST(p,stdout);
     printf("debug: ");
