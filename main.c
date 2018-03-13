@@ -1,59 +1,33 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include "bst.h"
-#include "gst.h"
 #include "integer.h"
-#include "real.h"
-#include "string.h"
-
-void srandom(unsigned int);
-long int random(void);
+#include "avl.h"
 
 int
 main(void)
 {
-    srandom(1);
-    //simple INTEGER test of GST
-    GST *p = newGST(displayINTEGER,compareINTEGER,freeINTEGER);
-    insertGST(p,newINTEGER(3));
-    insertGST(p,newINTEGER(2));
+    AVL *a = newAVL(displayINTEGER, compareINTEGER, freeINTEGER);
 
-    printf("GST:\n");
-    displayGST(p,stdout);
-    printf("debug: ");
-    displayGSTdebug(p,stdout);
+    insertAVL(a, newINTEGER(100));
+    displayAVL(a, stdout);
     printf("\n");
-    INTEGER *q = newINTEGER(2);
-    printf("is ");
-    displayINTEGER(q,stdout);
-    printf(" present? %s\n",findGST(p,q) == 0? "no" : "yes");
 
-    INTEGER *r = newINTEGER(3);
-    freeINTEGER(deleteGST(p,r));
-    printf("GST:\n");
-    displayGST(p,stdout);
-    printf("debug: ");
-    displayGSTdebug(p,stdout);
+    insertAVL(a, newINTEGER(99));
+    displayAVL(a, stdout);
     printf("\n");
-    printf("is ");
-    displayINTEGER(q,stdout);
-    printf(" present? %s\n",findGST(p,q) == 0? "no" : "yes");
-
-    setINTEGER(r,2);
-    freeINTEGER(deleteGST(p,r));
-    printf("GST:\n");
-    displayGST(p,stdout);
-    printf("debug: ");
-    displayGSTdebug(p,stdout);
+    insertAVL(a, newINTEGER(98));
+    displayAVL(a, stdout);
     printf("\n");
-    printf("is ");
-    displayINTEGER(q,stdout);
-    printf(" present? %s\n",findGST(p,q) == 0? "no" : "yes");
+    insertAVL(a, newINTEGER(97));
+    displayAVL(a, stdout);
+    printf("\n");
+    insertAVL(a, newINTEGER(96));
+    displayAVL(a, stdout);
+    printf("\n");
+    insertAVL(a, newINTEGER(95));
+    displayAVL(a, stdout);
+    printf("\n");
 
-    printf("size: %d\n",sizeGST(p));
-    statisticsGST(p,stdout);
-    freeINTEGER(q);
-    freeINTEGER(r);
-    freeGST(p);
+
     return 0;
 }

@@ -8,6 +8,9 @@
 #include "avl.h"
 
 
+static int debug = 1;
+
+
 typedef struct avlnode AVLNODE;
 
 struct avlnode {
@@ -15,6 +18,7 @@ struct avlnode {
     int height;
     int count;
     void *value;
+    BST *tree;
 
     void (*display)(void *v, FILE *fp);
 
@@ -24,6 +28,7 @@ struct avlnode {
 };
 
 static AVLNODE *newAVLNODE(void *v,
+                           BST *tree,
                            void (*display)(void *v, FILE *fp),
                            int (*compare)(void *v, void *w),
                            void (*freer)(void *n)) {
@@ -36,6 +41,7 @@ static AVLNODE *newAVLNODE(void *v,
     node->count = 1;
     node->balance = 0;
     node->height = 1;
+    node->tree = tree;
 
     return node;
 }
@@ -83,12 +89,16 @@ static void freeAVLNODE(void *n) {
     free(n);
 }
 
+static BST *getAVLNODEtree(AVLNODE *n) {
+    if(n) return n->tree;
+};
+
 static void setAVLNODEheight(AVLNODE *n, int height) {
-    if(n) n->height = height;
+    if (n) n->height = height;
 }
 
 static int getAVLNODEheight(AVLNODE *n) {
-    if(n) return n->height;
+    if (n) return n->height;
     else return 0;
 }
 
@@ -153,16 +163,13 @@ static int isLeftChild(BSTNODE *leaf) {
 
 
 static int maxHeight(BSTNODE *l, BSTNODE *r) {
-    if(!l && !r) { //if it doesnt have a left or right child
+    if (!l && !r) { //if it doesnt have a left or right child
         return 0;
-    }
-    else if(!r) {
+    } else if (!r) {
         return getAVLNODEheight(getBSTNODEvalue(l));
-    }
-    else if(!l) {
+    } else if (!l) {
         return getAVLNODEheight(getBSTNODEvalue(r));
-    }
-    else {
+    } else {
         int left = getAVLNODEheight(getBSTNODEvalue(l));
         int right = getAVLNODEheight(getBSTNODEvalue(r));
         return (left > right) ? left : right;
@@ -177,32 +184,120 @@ static int getBalance(BSTNODE *lb, BSTNODE *rb) {
 }
 
 
+static void rightRotate(BSTNODE *n) {
+    if(debug) printf("ROTATING RIGHT\n");
+    BSTNODE *left = getBSTNODEleft(n);
+    BSTNODE *parent = getBSTNODEparent(n);
+    BSTNODE *leftRight = getBSTNODEright(left);
+
+    if (parent && isLeftChild(n)) {
+        if(debug) printf("Setting parents left child to L\n");
+        setBSTNODEleft(parent, left);
+        setBSTNODEparent(left, parent);
+    } else if (parent) {
+        if(debug) printf("Setting parents right child to L\n");
+        setBSTNODEright(parent, left);
+        setBSTNODEparent(left, parent);
+    }
+    else {
+        if (debug) printf("There was no parent. Setting new Root\n");
+        setBSTNODEparent(left, 0);
+        setBSTroot(getAVLNODEtree(getBSTNODEvalue(n)),left);
+    }
+
+    setBSTNODEparent(n, left);
+    setBSTNODEright(left, n);
+
+    setBSTNODEparent(leftRight, n);
+    setBSTNODEleft(n, leftRight);
+
+
+    AVLNODE *nAVL = getBSTNODEvalue(n);
+    AVLNODE *leftAVL = getBSTNODEvalue(left);
+    AVLNODE *parentAVL = getBSTNODEvalue(parent);
+
+
+    //reset the heights
+    nAVL->height = maxHeight(getBSTNODEleft(n), getBSTNODEright(n)) + 1;
+    if (debug) printf("Node N height is now %d\n", nAVL->height);
+    if (leftAVL) {
+        leftAVL->height = maxHeight(getBSTNODEleft(left), getBSTNODEright(left)) + 1;
+        if (debug) printf("Node L height is now %d\n", leftAVL->height);
+    }
+    if (parentAVL) {
+        parentAVL->height = maxHeight(getBSTNODEleft(parent), getBSTNODEright(parent)) + 1;
+        if (debug) printf("Node P height is now %d\n", parentAVL->height);
+    }
+
+    //reset the balances
+    nAVL->balance = getBalance(getBSTNODEleft(n), getBSTNODEright(n));
+    if (debug) printf("Node N balance is now %d\n", nAVL->balance);
+    if (leftAVL) {
+        leftAVL->balance = getBalance(getBSTNODEleft(left), getBSTNODEright(left));
+        if (debug) printf("Node L balance is now %d\n", leftAVL->balance);
+    }
+    if(parentAVL) {
+        parentAVL->balance = getBalance(getBSTNODEleft(parent), getBSTNODEright(parent));
+        if (debug) printf("Node P balance is now %d\n", parentAVL->balance);
+    }
+}
+
+
 //recursively fixes the AVL up the tree
-static void fixupAVL (BSTNODE *b) {
+static void fixupAVL(BSTNODE *b) {
 
     AVLNODE *n = getBSTNODEvalue(b);
     BSTNODE *parent = getBSTNODEparent(b);
 
-    while(parent != 0) {
+    while (parent != 0) {
+
+        if(debug) {
+            printf("Parent is now ");
+            displayAVLNODE(getBSTNODEvalue(parent), stdout);
+            printf("\n");
+        }
+
+        if(debug) printf("fixing parent\n");
+
         AVLNODE *p = getBSTNODEvalue(parent);
         BSTNODE *left = getBSTNODEleft(parent);
         BSTNODE *right = getBSTNODEright(parent);
 
         p->height = maxHeight(left, right) + 1;
+        if(debug) printf("Parent height now %d\n", p->height);
 
         p->balance = getBalance(left, right);
+        if(debug) printf("Parent balance now %d\n", p->balance);
 
         //left side is unbalanced
-        if(p->balance > 1) {
+        if (p->balance > 1) {
 
-
+            if (compareAVLNODE(n, getBSTNODEvalue(left)) > 0) { //LEFT RIGHT CASE
+                if (debug) printf("LEFT RIGHT CASE\n");
+                break;
+            } else {  //LEFT LEFT CASE
+                if (debug) printf("LEFT LEFT CASE\n");
+                rightRotate(parent);
+                break;
+            }
 
         }
             //right side is unbalanced
-        else if(p->balance < -1) {
+        else if (p->balance < -1) {
+
+            if (compareAVLNODE(n, getBSTNODEvalue(right)) < 0) { //RIGHT LEFT CASE
+                if (debug) printf("RIGHT LEFT CASE\n");
+                break;
+            } else {
+                if (debug) printf("RIGHT RIGHT CASE\n");
+                break;
+
+            }
+        }
+        else {
+            if(debug) printf("No rotations required.\n");
 
         }
-
 
 
         parent = getBSTNODEparent(parent);
@@ -212,19 +307,24 @@ static void fixupAVL (BSTNODE *b) {
 
 void insertAVL(AVL *a, void *value) {
 
-    AVLNODE *n = newAVLNODE(value, a->display, a->compare, a->free);
+    AVLNODE *n = newAVLNODE(value, a->tree, a->display, a->compare, a->free);
     BSTNODE *bnode = findBST(a->tree, n);
 
     if (bnode) { //it already exists
+        if(debug) printf("NODE already exists. incrementing count\n");
         incrementAVLNODEcount(getBSTNODEvalue(bnode));
         freeAVLNODE(n);
     } else { //it doesnt already exist
         bnode = insertBST(a->tree, n);
+        if(debug) printf("NODE doesn't exist. inserted and fixing up\n");
         fixupAVL(bnode);
 
     }
+}
 
 
+void displayAVL(AVL *a,FILE *fp) {
+    displayBSTdecorated(a->tree, fp);
 }
 
 

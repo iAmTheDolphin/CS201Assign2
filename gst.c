@@ -11,7 +11,7 @@
 
 typedef  struct gstnode GSTNODE;
 
-int debug = 1;
+static int debug = 1;
 
 
 struct gstnode {
