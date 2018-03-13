@@ -208,7 +208,6 @@ BSTNODE *findBST(BST *t,void *value) {
         return findBSThelper(t, n, value);
     }
     return 0;
-
 }
 
 
@@ -385,7 +384,7 @@ void displayBSTdebug(BST *t,FILE *fp) {
     freeQUEUE(items);
 }
 
-void decoratedBST (BST *t, FILE *fp) {
+void displayBSTdecorated (BST *t, FILE *fp) {
     BSTNODE *n = t->root;
     QUEUE *items = newQUEUE(t->display, t->free);
     if(n) enqueue(items, n);

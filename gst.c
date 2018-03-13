@@ -87,6 +87,7 @@ GST *newGST(
     assert(g != 0);
 
     g->size = 0;
+    g->duplicates = 0;
     g->display = display;
     g->compare = comparator;
     g->freer = freer;
@@ -113,11 +114,16 @@ void insertGST(GST *g,void *v) {
     else {
         insertBST(g->tree, n);
     }
-
 }
 
+
 void displayGST(GST *g,FILE *fp) {
-    decoratedBST(g->tree, fp);
+    if(sizeBST(g->tree) > 0) {
+        displayBSTdecorated(g->tree, fp);
+    }
+    else {
+        printf("EMPTY\n");
+    }
 }
 
 
@@ -143,8 +149,8 @@ void *findGST(GST *g,void *v) {
     else return 0;
 }
 
-void *deleteGST(GST *g,void *v) {
 
+void *deleteGST(GST *g,void *v) {
     GSTNODE *n = newGSTNODE(v, g->display, g->compare, g->freer);
 
     BSTNODE *bnode = findBST(g->tree, n);
@@ -155,10 +161,12 @@ void *deleteGST(GST *g,void *v) {
 
     bnode = deleteBST(g->tree, n);
 
+    free(n);
+
     if(bnode) return getGSTNODEvalue(getBSTNODEvalue(bnode));
     else return 0;
-
 }
+
 
 int duplicates(GST *g) {
     return g->duplicates;
@@ -170,15 +178,19 @@ int sizeGST(GST *g) {
     return sizeBST(g->tree) + g->duplicates;
 }
 
-extern void displayGSTdebug(GST *g,FILE *fp) {
+
+void displayGSTdebug(GST *g,FILE *fp) {
     displayBST(g->tree, fp);
 }
 
-extern void freeGST(GST *g) {
 
+void freeGST(GST *g) {
+    freeBST(g->tree);
+    free(g);
 }
 
-extern void statisticsGST(GST *g,FILE *fp) {
+
+void statisticsGST(GST *g,FILE *fp) {
     printf("Duplicates: %d\n", g->duplicates);
     statisticsBST(g->tree, fp);
 }
