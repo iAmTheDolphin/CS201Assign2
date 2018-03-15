@@ -71,7 +71,7 @@ void freeBSTNODE(BSTNODE *n,void (*f)(void *)) {
 
 
 
-int debugBST = 0;
+int debugBST = 1;
 
 struct bst {
     void (*display)(void *s,FILE *fp) ;
@@ -293,19 +293,21 @@ void pruneLeafBST(BST *t,BSTNODE *leaf) {
         if(debugBST) {
             printf("Parent of leaf is ");
             t->display(getBSTNODEvalue(getBSTNODEparent(leaf)), stdout);
+            printf("\n");
         }
         if(isLeftChild(leaf)) {
             setBSTNODEleft(leaf->parent, 0);
-            t->size--;
+            //setBSTNODEparent(leaf, 0);
+            //t->size--; //commented out for ASSIGN2
         }
         else if (isRightChild(leaf)) {
             setBSTNODEright(leaf->parent, 0);
-            t->size--;
+            //t->size--; //commented out for ASSIGN2
         }
     }
     else if(t->size == 1){
         t->root = 0;
-        t->size--;
+        //t->size--; //commented out for ASSIGN2
     }
 }
 
@@ -319,7 +321,7 @@ BSTNODE *deleteBST(BST *t,void *value) {
         }
         n = swapToLeafBST(t, n);
         pruneLeafBST(t, n);
-        //pruneLeafBST already decrements the size so we dont have to do that here
+        t->size--;
         return n;
     }
 
