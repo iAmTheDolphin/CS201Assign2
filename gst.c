@@ -11,7 +11,6 @@
 
 typedef  struct gstnode GSTNODE;
 
-static int debug = 1;
 
 
 struct gstnode {
@@ -54,7 +53,13 @@ static void decrementGSTNODEcount(GSTNODE *n) {
 }
 
 static void displayGSTNODE(void *n, FILE *fp) {
-    ((GSTNODE *) n)->display(getGSTNODEvalue(n), fp);
+    GSTNODE *node = n;
+    node->display(getGSTNODEvalue(n), fp);
+    if(getGSTNODEcount(node) > 1) {
+        printf("[");
+        printf("%d", getGSTNODEcount(node));
+        printf("]");
+    }
     //printf("[%d]", getGSTNODEcount(n));
 }
 

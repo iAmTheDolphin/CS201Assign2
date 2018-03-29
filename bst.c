@@ -10,6 +10,10 @@
 
 //region BSTNODE
 
+
+int debugBST = 0;
+
+
 struct bstnode {
     void *value;
     BSTNODE *left;
@@ -28,7 +32,7 @@ BSTNODE *newBSTNODE(void *value) {
 }
 
 void *getBSTNODEvalue(BSTNODE *n) {
-    if(n) return n->value;
+    if(n != 0) return n->value;
     else return 0;
 }
 
@@ -70,8 +74,6 @@ void freeBSTNODE(BSTNODE *n,void (*f)(void *)) {
 //endregion
 
 
-
-int debugBST = 1;
 
 struct bst {
     void (*display)(void *s,FILE *fp) ;
@@ -188,6 +190,7 @@ int sizeBST(BST *t) {
 }
 
 static BSTNODE *findBSThelper (BST *t, BSTNODE *n, void *value) {
+
     if(t->comparator(getBSTNODEvalue(n), value) == 0) {
         return n;
     }

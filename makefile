@@ -1,12 +1,12 @@
-OBJS = bst.o main.o integer.o queue.o sll.o stack.o dll.o real.o scanner.o string.o gst.o avl.o
-OOPTS = -Wall -Wextra -g -c
+OBJS = bst.o trees.o integer.o queue.o sll.o stack.o dll.o real.o scanner.o string.o gst.o avl.o
+OOPTS = -Wall -Wextra -std=c99 -g -c
 LOPTS = -Wall -Wextra -g
-EXEC = ./main -r hs-0-0.data
+EXEC = ./trees testfile
 
-all : main
+all : trees
 
-main : $(OBJS)
-		gcc $(LOPTS) $(OBJS) -o main
+trees : $(OBJS)
+		gcc $(LOPTS) $(OBJS) -o trees
 
 string.o : string.c string.h
 		gcc $(OOPTS) string.c
@@ -29,11 +29,14 @@ queue.o : queue.c queue.h sll.o
 bst.o : bst.c bst.h
 		gcc $(OOPTS) bst.c
 
-main.o :    main.c integer.o real.o string.o scanner.o
-		gcc $(OOPTS) main.c
+trees.o :    trees.c integer.o real.o string.o scanner.o
+		gcc $(OOPTS) trees.c
 
 gst.o : gst.c gst.h bst.o
 		gcc $(OOPTS) gst.c
+
+avl.o : avl.c avl.h bst.o
+		gcc $(OOPTS) avl.c
 
 stack.o : stack.c stack.h dll.o
 		gcc $(OOPTS) stack.c
@@ -41,14 +44,14 @@ stack.o : stack.c stack.h dll.o
 dll.o : dll.c dll.h
 		gcc $(OOPTS) dll.c
 
-test : main
+test : trees
 		$(EXEC)
 
-valgrind : main
+valgrind : trees
 		valgrind $(EXEC)
 
 clean	:
-		rm -f -r $(OBJS) main *.dSYM
+		rm -f -r $(OBJS) trees *.dSYM
 
-memcheck : main
+memcheck : trees
 		valgrind --leak-check=yes $(EXEC)

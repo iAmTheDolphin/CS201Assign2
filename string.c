@@ -9,6 +9,8 @@
 #include <string.h>
 #include "string.h"
 
+
+static int debug = 0;
 struct String {
     char *value;
 };
@@ -48,8 +50,15 @@ compareSTRINGmin(void *v, void *w) {
     return strcmp(getSTRING(v), getSTRING(w));
 }
 
+int
+compareSTRING(void *v, void *w) {
+    if(debug) printf("%s -- %s\n", getSTRING(v), getSTRING(w));
+    return strcmp(getSTRING(v), getSTRING(w));
+}
+
 void
 freeSTRING(void *v) {
-    free(getSTRING(v));
+    char *s = getSTRING(v);
+    if(s)free(s);
     free(v);
 }

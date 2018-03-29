@@ -8,7 +8,7 @@
 #include "avl.h"
 
 
-static int debug = 1;
+static int debug = 0;
 
 
 typedef struct avlnode AVLNODE;
@@ -63,24 +63,34 @@ static void decrementAVLNODEcount(AVLNODE *n) {
     n->count--;
 }
 
-static void decrementAVLNODEbalance(AVLNODE *n) {
-    n->balance--;
-}
-
-static void incrementAVLNODEbalance(AVLNODE *n) {
-    n->balance++;
-}
-
 static int getAVLNODEbalance(AVLNODE *n) {
-    return n->balance;
+    if(n)return n->balance;
+    else return 0;
 }
 
 static void displayAVLNODE(void *n, FILE *fp) {
-    if(n)((AVLNODE *) n)->display(getAVLNODEvalue(n), fp);
+    AVLNODE *node = n;
+    if(node)node->display(getAVLNODEvalue(node), fp);
+    if(getAVLNODEcount(node) > 1) {
+        printf("[");
+        printf("%d", getAVLNODEcount(node));
+        printf("]");
+    }
+    if(getAVLNODEbalance(node) == 1) {
+        printf("+");
+    }
+    else if(getAVLNODEbalance(node) == -1) {
+        printf("-");
+    }
     //printf("[%d]", getAVLNODEcount(n));
 }
 
 static int compareAVLNODE(void *v, void *w) {
+    if(debug) {
+        printf("AVL---");
+        displayAVL(v, stdout);
+        printf(" done comparing\n");
+    }
     if(w && v)return ((AVLNODE *) v)->compare(getAVLNODEvalue(v), getAVLNODEvalue(w));
     else if(w) return -1;
     else if(v) return 1;
@@ -94,20 +104,15 @@ static void freeAVLNODE(void *n) {
 
 static BST *getAVLNODEtree(AVLNODE *n) {
     if(n) return n->tree;
+    else return 0;
 };
 
-static void setAVLNODEheight(AVLNODE *n, int height) {
-    if (n) n->height = height;
-}
 
 static int getAVLNODEheight(AVLNODE *n) {
     if (n) return n->height;
     else return 0;
 }
 
-static void setAVLNODEbalance(AVLNODE *n, int balance) {
-    n->balance = balance;
-}
 
 static void swapAVLNODE(BSTNODE *bv, BSTNODE *bw) {
     //value and count need to switch not height and balance
@@ -157,13 +162,13 @@ AVL *newAVL(
     return a;
 }
 
-
+/*
 static int isRightChild(BSTNODE *leaf) {
 
     if(compareAVLNODE(getBSTNODEvalue(leaf), getBSTNODEvalue(getBSTNODEright(getBSTNODEparent(leaf)))) == 0)
         return 1;
     else return 0;
-}
+}*/
 
 static int isLeftChild(BSTNODE *leaf) {
     if(compareAVLNODE(getBSTNODEvalue(leaf), getBSTNODEvalue(getBSTNODEleft(getBSTNODEparent(leaf)))) == 0)
@@ -186,10 +191,14 @@ static int maxHeight(BSTNODE *l, BSTNODE *r) {
 }
 
 static int getBalance(BSTNODE *lb, BSTNODE *rb) {
-    AVLNODE *l = getBSTNODEvalue(lb);
-    AVLNODE *r = getBSTNODEvalue(rb);
+    AVLNODE *l = 0;
+    AVLNODE *r = 0;
+    if(lb) l = getBSTNODEvalue(lb);
+    if(rb) r = getBSTNODEvalue(rb);
 
-    return getAVLNODEheight(l) - getAVLNODEheight(r);
+    if(l && r) return getAVLNODEheight(l) - getAVLNODEheight(r);
+    else if(l) return getAVLNODEheight(l);
+    else return 0 - getAVLNODEheight(r);
 }
 
 static void rightRotate(BSTNODE *n) {
@@ -314,8 +323,16 @@ static void fixupAVL(BSTNODE *b) {
 
     AVLNODE *n = getBSTNODEvalue(b);
     BSTNODE *parent = getBSTNODEparent(b);
+    BSTNODE *lastParent = 0;
 
-    while (parent != 0) {
+    if(debug) {
+        printf("starting fixup loop\n");
+        printf("First parent is ");
+        displayAVLNODE(getBSTNODEvalue(parent), stdout);
+        printf("\n");
+    }
+
+    while (parent != 0) { //fixme this needs to loop until the root but the root's parent is itself
 
         if(debug) {
             printf("Parent is now ");
@@ -367,7 +384,9 @@ static void fixupAVL(BSTNODE *b) {
         else {
             if(debug) printf("No rotations required.\n");
         }
+        lastParent = parent;
         parent = getBSTNODEparent(parent);
+        if(lastParent == parent) break;
     }
 }
 
@@ -384,7 +403,7 @@ void insertAVL(AVL *a, void *value) {
     } else { //it doesnt already exist
         bnode = insertBST(a->tree, n);
         if(debug) printf("NODE doesn't exist. inserted and fixing up\n");
-        fixupAVL(bnode);
+        if(sizeBST(a->tree) > 1)fixupAVL(bnode);
     }
 }
 
@@ -399,60 +418,49 @@ void *findAVL(AVL *a,void *v) {
     AVLNODE *n = newAVLNODE(v,a->tree , a->display, a->compare, a->free);
     BSTNODE *b = findBST(a->tree, n);
     free(n);
-    return getAVLNODEvalue(getBSTNODEvalue(b));
+    if(b)return getAVLNODEvalue(getBSTNODEvalue(b));
+    else return 0;
 }
 
 
+/*
 
 int duplicatesAVL(AVL *a) {
     if(a) return a->duplicates;
     else return 0;
 }
+*/
 
 
 
 
 void displayAVL(AVL *a,FILE *fp) {
-    displayBSTdecorated(a->tree, fp);
+    if(sizeBST(a->tree ) > 0)displayBSTdecorated(a->tree, fp);
+    else printf("EMPTY\n");
 }
 
 
+/*
 static int favorite(BSTNODE *parent, BSTNODE *child) {
     if((getAVLNODEbalance(getBSTNODEvalue(parent)) > 0 && isLeftChild(child))
        || (getAVLNODEbalance(getBSTNODEvalue(parent)) < 0 && isRightChild(child))) return 1;
     else return 0;
 }
+*/
 
-
-static void deleteFixup(BSTNODE *b) {
-
-    BSTNODE *parent = getBSTNODEparent(b);
-
-    while(parent != 0) {
-
-
-
-        AVLNODE *p = getBSTNODEvalue(parent);
-
-        if(p->balance == 0) { //the parent is balanced
-            p->balance = getBalance(getBSTNODEleft(parent), getBSTNODEright(parent));
-            break;
-        }
-        else { //the parent is not balanced
-
-
-
-        }
-
-    }
-
-}
 
 
 void *deleteAVL(AVL *a,void *v) {
 
     AVLNODE *n = newAVLNODE(v, a->tree, a->display, a->compare, a->free);
     BSTNODE *b = findBST(a->tree, n);
+    if(!b) {
+        printf("Value ");
+        displayAVLNODE(n, stdout);
+        printf(" not found.\n");
+        free(n);
+        return 0;
+    }
     void *temp;
     free(n);
     n = getBSTNODEvalue(b);
@@ -470,6 +478,7 @@ void *deleteAVL(AVL *a,void *v) {
             printf("deleting leaf. \n");
         }
         pruneLeafBST(a->tree, b);
+        setBSTsize(a->tree, sizeBST(a->tree) - 1);
         //freeBSTNODE(b, 0);
         if(debug) {
             displayAVL(a, stdout);
@@ -479,6 +488,32 @@ void *deleteAVL(AVL *a,void *v) {
         fixupAVL(b);
 
     }
+
     return temp;
 }
+
+
+int sizeAVL(AVL *a) {
+    return sizeBST(a->tree);
+}
+
+
+void statisticsAVL(AVL *a,FILE *fp) {
+    printf("Duplicates: %d\n", a->duplicates);
+    statisticsBST(a->tree, fp);
+}
+
+
+void displayAVLdebug(AVL *a,FILE *fp) {
+    displayBST(a->tree, fp);
+}
+
+
+void freeAVL(AVL *a) {
+    freeBST(a->tree);
+    free(a);
+}
+
+
+
 

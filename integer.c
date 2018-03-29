@@ -20,7 +20,8 @@ newINTEGER(int x) {
 
 int
 getINTEGER(INTEGER *v) {
-    return v->value;
+    if(v) return v->value;
+    else return 0;
 }
 
 int

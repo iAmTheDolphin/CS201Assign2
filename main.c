@@ -1,55 +1,64 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "integer.h"
+#include "real.h"
+#include "string.h"
+#include "queue.h"
+#include "bst.h"
 #include "avl.h"
-#include "gst.h"
+
+void srandom(unsigned int);
+long int random(void);
+
+/*
 
 int
 main(void)
 {
-/*
-
-    GST *g = newGST(displayINTEGER, compareINTEGER, freeINTEGER);
-
-    insertGST(g, newINTEGER(5));
-    insertGST(g, newINTEGER(2));
-    insertGST(g, newINTEGER(3));
-    insertGST(g, newINTEGER(7));
-    insertGST(g, newINTEGER(6));
-    displayGST(g, stdout);
-    deleteGST(g, newINTEGER(2));
+    srandom(1);
+    //simple INTEGER test of AVL
+    AVL *p = newAVL(displayINTEGER,compareINTEGER,freeINTEGER);
+    insertAVL(p,newINTEGER(3));
+    insertAVL(p,newINTEGER(2));
+    deleteAVL(p, newINTEGER(1000));
+    statisticsAVL(p,stdout);
+    printf("AVL:\n");
+    displayAVL(p,stdout);
+    printf("debug: ");
+    displayAVLdebug(p,stdout);
     printf("\n");
-    displayGST(g, stdout);
-
-*/
-
-    AVL *a = newAVL(displayINTEGER, compareINTEGER, freeINTEGER);
-
-    insertAVL(a, newINTEGER(10));
-    displayAVL(a, stdout);
+    INTEGER *q = newINTEGER(2);
+    printf("is ");
+    displayINTEGER(q,stdout);
+    printf(" present? %s\n",findAVL(p,q) == 0? "no" : "yes");
+    INTEGER *r = newINTEGER(3);
+    freeINTEGER(deleteAVL(p,r));
+    statisticsAVL(p,stdout);
+    printf("AVL:\n");
+    displayAVL(p,stdout);
+    printf("debug: ");
+    displayAVLdebug(p,stdout);
     printf("\n");
-
-    insertAVL(a, newINTEGER(5));
-    displayAVL(a, stdout);
+    printf("is ");
+    displayINTEGER(q,stdout);
+    printf(" present? %s\n",findAVL(p,q) == 0? "no" : "yes");
+    setINTEGER(r,2);
+    freeINTEGER(deleteAVL(p,r));
+    statisticsAVL(p,stdout);
+    printf("AVL:\n");
+    displayAVL(p,stdout);
+    printf("debug: ");
+    displayAVLdebug(p,stdout);
     printf("\n");
-    insertAVL(a, newINTEGER(11));
-    displayAVL(a, stdout);
-    printf("\n");
-    insertAVL(a, newINTEGER(4));
-    displayAVL(a, stdout);
-    printf("\n");
-    insertAVL(a, newINTEGER(6));
-    displayAVL(a, stdout);
-    printf("\n");
-    insertAVL(a, newINTEGER(7));
-    displayAVL(a, stdout);
-
-    printf("- - deleting AVL - -\n");
-    deleteAVL(a, newINTEGER(6));
-    displayAVL(a, stdout);
-    printf("\n");
-
-
-
+    printf("is ");
+    displayINTEGER(q,stdout);
+    printf(" present? %s\n",findAVL(p,q) == 0? "no" : "yes");
+    printf("size: %d\n",sizeAVL(p));
+    freeINTEGER(q);
+    freeINTEGER(r);
+    freeAVL(p);
     return 0;
 }
+
+
+*/
