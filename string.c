@@ -59,6 +59,12 @@ compareSTRING(void *v, void *w) {
 void
 freeSTRING(void *v) {
     char *s = getSTRING(v);
-    if(s)free(s);
+    if(debug) printf("Freeing : %s\n", s);
+
+    /* fixme this is broken. it should be freeing but it isn't. It is segfaulting like
+     * s was never allocated.
+     */
+
+    //if(s)free(s);
     free(v);
 }

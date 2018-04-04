@@ -11,6 +11,7 @@
 
 typedef  struct gstnode GSTNODE;
 
+static int debug = 0;
 
 
 struct gstnode {
@@ -111,15 +112,21 @@ void insertGST(GST *g,void *v) {
     //needs to call findBST
     //if it exists, then it needs to increment the count
     //if it doesnt, call insertBST
-
+    if(debug) {
+        printf("_GST : insertGST -  inserting [");
+        g->display(v, stdout);
+        printf("]\n");
+    }
     GSTNODE *n = newGSTNODE(v, g->display, g->compare, g->freer);
     BSTNODE *bnode = findBST(g->tree, n);
     if(bnode) {
+        if(debug) printf("_GST : insertGST -  node exists. incrementing count.\n");
         incrementGSTNODEcount(getBSTNODEvalue(bnode));
         g->duplicates++;
         free(n);
     }
     else {
+        if(debug) printf("_GST : insertGST -  Node does not exist. Inserting node.\n");
         insertBST(g->tree, n);
     }
 }
@@ -136,11 +143,23 @@ void displayGST(GST *g,FILE *fp) {
 
 
 int findGSTcount(GST *g,void *v) {
+    if(debug) {
+        printf("_GST : findGSTcount -  finding count of [");
+        g->display(v, stdout);
+        printf("]\n");
+    }
     //calls findGST then gets the count out of it
     GSTNODE *n = newGSTNODE(v, g->display, g->compare, g->freer);
     BSTNODE *b = findBST(g->tree, n);
     free(n);
-    return getGSTNODEcount(getBSTNODEvalue(b));
+    if(b){
+        if(debug) printf("_GST : findGSTcount -  count is %d.\n", getGSTNODEcount(getBSTNODEvalue(b)));
+        return getGSTNODEcount(getBSTNODEvalue(b));
+    }
+    else {
+        if(debug) printf("_GST : findGSTcount -  node not found. Returning 0.\n");
+        return 0;
+    }
 
 }
 
@@ -162,19 +181,35 @@ void *deleteGST(GST *g,void *v) {
     GSTNODE *n = newGSTNODE(v, g->display, g->compare, g->freer);
     BSTNODE *bnode = findBST(g->tree, n);
     free(n);
-
+    if(debug) {
+        printf("_GST : deleteGST -  deleting [");
+        g->display(v, stdout);
+        printf("]\n");
+    }
     void *temp = 0; //the value in GSTNODE that will be returned
 
     if(bnode && getGSTNODEcount(getBSTNODEvalue(bnode)) > 1) {
+        if(debug) printf("_GST : deleteGST -  decrementing count.\n");
         g->duplicates--;
         decrementGSTNODEcount(getBSTNODEvalue(bnode));
         temp = getGSTNODEvalue(getBSTNODEvalue(bnode));
     }
     else if(bnode) { //the count is 1 so it deletes it
+        if(debug) printf("_GST : deleteGST -  deleting node.\n");
         bnode = deleteBST(g->tree, getBSTNODEvalue(bnode));
         temp = getGSTNODEvalue(getBSTNODEvalue(bnode));
         free(getBSTNODEvalue(bnode));
         freeBSTNODE(bnode, 0);
+    }
+    else {
+        if(debug) {
+            printf("_GST : deleteGST -  [");
+            g->display(v, stdout);
+            printf("] Not found.\n");
+        }
+        printf("Value ");
+        g->display(v, stdout);
+        printf(" not found.\n");
     }
     return temp;
 }

@@ -10,6 +10,7 @@ extern double getREAL(REAL *);
 extern double setREAL(REAL *,double);
 extern int compareREALmax(void *,void *);
 extern int compareREALmin(void *,void *);
+extern int compareREALmin(void *v, void *w);
 extern void displayREAL(void *,FILE *);
 extern void freeREAL(void *);
 

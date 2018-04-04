@@ -11,7 +11,7 @@
 //region BSTNODE
 
 
-int debugBST = 0;
+static int debugBST = 0;
 
 
 struct bstnode {
@@ -32,7 +32,7 @@ BSTNODE *newBSTNODE(void *value) {
 }
 
 void *getBSTNODEvalue(BSTNODE *n) {
-    if(n != 0) return n->value;
+    if(n) return n->value;
     else return 0;
 }
 
@@ -41,12 +41,15 @@ void setBSTNODEvalue(BSTNODE *n,void *value) {
 }
 
 BSTNODE *getBSTNODEleft(BSTNODE *n) {
-    if(n)return n->left;
+    if(n != 0)return n->left;
     else return 0;
 }
 
 void setBSTNODEleft(BSTNODE *n,BSTNODE *replacement) {
-    if(n) n->left = replacement;
+    if(n) {
+        if(replacement) n->left = replacement;
+        else n->left = 0;
+    }
 }
 
 BSTNODE *getBSTNODEright(BSTNODE *n) {
@@ -55,16 +58,23 @@ BSTNODE *getBSTNODEright(BSTNODE *n) {
 }
 
 void setBSTNODEright(BSTNODE *n,BSTNODE *replacement) {
-    if(n) n->right = replacement;
+    if(n) {
+        if(replacement)
+            n->right = replacement;
+        else n->right = 0;
+    }
 }
 
 BSTNODE *getBSTNODEparent(BSTNODE *n) {
+
     if(n) return n->parent;
     else return 0;
 }
 
 void setBSTNODEparent(BSTNODE *n,BSTNODE *replacement) {
-    if(n) n->parent = replacement;
+    if(debugBST) printf("_BST : setBSTNODEparent\n");
+    if(n && replacement) n->parent = replacement;
+    else if (n) n->parent = 0;
 }
 
 void freeBSTNODE(BSTNODE *n,void (*f)(void *)) {
@@ -180,6 +190,7 @@ static BSTNODE *findNodeToSwap(BSTNODE *n) {
 /*        accessors        */
 
 BSTNODE *getBSTroot(BST *t) {
+    if(debugBST) printf("_BST : getBSTroot\n");
     return t->root;
 }
 
@@ -207,6 +218,11 @@ static BSTNODE *findBSThelper (BST *t, BSTNODE *n, void *value) {
 }
 
 BSTNODE *findBST(BST *t,void *value) {
+    if(debugBST) {
+        printf("_BST : findBST -  finding : ");
+        t->display(value, stdout);
+        printf("\n");
+    }
     BSTNODE *n = t->root;
     if ( n ) {
         return findBSThelper(t, n, value);
@@ -225,10 +241,16 @@ void setBSTroot(BST *t,BSTNODE *replacement) {
 }
 
 void setBSTsize(BST *t,int s) {
+    if(debugBST) printf("_BST : setBSTsize -  setting bst size to %d\n", s);
     t->size = s; //FIXME - WHY IS THIS HERE?
 }
 
 BSTNODE *swapToLeafBST(BST *t,BSTNODE *n) {
+    if(debugBST) {
+        printf("_BST : swapToLeafBST -  swapping : ");
+        t->display(getBSTNODEvalue(n), stdout);
+        printf(" to leaf\n");
+    }
     BSTNODE *swapNode = findNodeToSwap(n);
     if(swapNode) {
         t->swapper(n, swapNode);
@@ -269,6 +291,11 @@ static BSTNODE *insertHelper(BST *t, BSTNODE *n, void *value) {
 
 //This method inserts a value into the search tree, returning the inserted BSTNODE.
 BSTNODE *insertBST (BST *t, void *value) {
+    if(debugBST) {
+        printf("_BST : insertBST -  inserting : ");
+        t->display(value, stdout);
+        printf("\n");
+    }
     BSTNODE *newN;
     if(t->root == 0) {
         newN = newBSTNODE(value);
@@ -278,6 +305,7 @@ BSTNODE *insertBST (BST *t, void *value) {
         newN = insertHelper(t, t->root, value);
     }
     t->size ++;
+    if(debugBST) printf("_BST : insertBST -  size is %d\n", t->size);
     return newN;
 }
 
@@ -288,13 +316,13 @@ BSTNODE *insertBST (BST *t, void *value) {
 
 void pruneLeafBST(BST *t,BSTNODE *leaf) {
     if (debugBST) {
-        printf("pruning ");
+        printf("_BST : pruneLeafBST -  pruning ");
         t->display(getBSTNODEvalue(leaf), stdout);
         printf("\n");
     }
     if(t->size > 1) {
         if(debugBST) {
-            printf("Parent of leaf is ");
+            printf("_BST : pruneLeafBST -  Parent of leaf is ");
             t->display(getBSTNODEvalue(getBSTNODEparent(leaf)), stdout);
             printf("\n");
         }
@@ -315,10 +343,11 @@ void pruneLeafBST(BST *t,BSTNODE *leaf) {
 }
 
 BSTNODE *deleteBST(BST *t,void *value) {
+    if(debugBST) printf("_BST : deleteBST");
     BSTNODE *n = findBST(t, value);
     if(n) {
         if(debugBST) {
-            printf("deleting: ");
+            printf("_BST : deleteBST -  deleting: ");
             t->display(getBSTNODEvalue(n), stdout);
             printf("\n");
         }
@@ -427,9 +456,17 @@ void displayBSTdecorated (BST *t, FILE *fp) {
                 printf("R");
             }
             //dequeues the node just displayed
-            dequeue(items);
+            if(sizeQUEUE(items))dequeue(items);
             //if there is a left BSTNODE to the current node we enqueue it
-            if(getBSTNODEleft(n) != 0) enqueue(items, getBSTNODEleft(n));
+            if(getBSTNODEleft(n) != 0) {
+                /*if(debugBST) {
+                    printf("enqueueing left [");
+                    t->display(getBSTNODEvalue(getBSTNODEleft(n)), stdout);
+                    printf("] ");
+                }*/
+                getBSTNODEleft(n);
+                enqueue(items, getBSTNODEleft(n));
+            }
             //if there is a left BSTNODE to the current node we enqueue it
             if(getBSTNODEright(n) != 0) enqueue(items, getBSTNODEright(n));
             //decrement nodes left in current level
@@ -496,6 +533,7 @@ static void freeHelper(BST *t, BSTNODE *n) {
 }
 
 void freeBST(BST *t) {
+    if(debugBST)printf("_ freeing BST of size %d", t->size);
     if(t->free != NULL && t->size > 0) {
         freeHelper(t, t->root);
     }

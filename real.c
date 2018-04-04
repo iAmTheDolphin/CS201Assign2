@@ -51,6 +51,14 @@ compareREALmin(void *v, void *w) {
     else return -1;
 }
 
+int
+compareREAL(void *v, void *w) {
+    if(getREAL(v) == getREAL(w)) return 0;
+    else if(getREAL(v) > getREAL(w)) return 1;
+    else return -1;
+}
+
+
 void
 freeREAL(void *v) {
     free((REAL *) v);

@@ -38,19 +38,19 @@ displayINTEGER(void *v, FILE *fp) {
 
 int
 compareINTEGERmax(void *v, void *w) {
-    if(debugINTEGER)printf("Comparing %d - %d = %d\n", getINTEGER(w), getINTEGER(v), getINTEGER(w) - getINTEGER(v));
+    if(debugINTEGER)printf("_ Comparing %d - %d = %d\n", getINTEGER(w), getINTEGER(v), getINTEGER(w) - getINTEGER(v));
     return getINTEGER(w) - getINTEGER(v);
 }
 
 int
 compareINTEGERmin(void *v, void *w) {
-    if(debugINTEGER)printf("Comparing %d - %d = %d\n", getINTEGER(v), getINTEGER(w), getINTEGER(v) - getINTEGER(w));
+    if(debugINTEGER)printf("_ Comparing %d - %d = %d\n", getINTEGER(v), getINTEGER(w), getINTEGER(v) - getINTEGER(w));
     return getINTEGER(v) - getINTEGER(w);
 }
 
 int
 compareINTEGER(void *v, void *w) {
-    if(debugINTEGER)printf("Comparing %d - %d = %d\n", getINTEGER(v), getINTEGER(w), getINTEGER(v) - getINTEGER(w));
+    if(debugINTEGER)printf("_ Comparing %d - %d = %d\n", getINTEGER(v), getINTEGER(w), getINTEGER(v) - getINTEGER(w));
     return getINTEGER(v) - getINTEGER(w);
 }
 

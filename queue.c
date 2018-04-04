@@ -4,6 +4,7 @@
 
 #include "queue.h"
 
+
 struct queue {
     SLL *items;
     void (*display) (void *, FILE *);
@@ -27,9 +28,10 @@ void enqueue(QUEUE *queue,void *value) {
     insertSLL(queue->items, sizeSLL(queue->items), value);
 }
 
+
 void *dequeue(QUEUE *queue) {
+    assert(sizeQUEUE(queue));
     void *value = removeSLL(queue->items, 0);
-    assert(value != 0);
     return value;
 }
 
