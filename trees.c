@@ -251,17 +251,17 @@ main(int argc, char **argv) {
                 if (command[0] != '\0') {
                     if (debugMAIN) printf("_trees : MAIN -  command:d deleting[%s].\n", command);
                     void *str = newSTRING(command);
-                    void *temp = 0;
                     if (avl) {
-                        temp = deleteAVL(((AVL *) tree), str);
-                        if(!temp) {
+                        void *v = findAVL(((AVL *) tree), str);
+                        deleteAVL(((AVL *) tree), str);
+                        if(!v) {
                             printf("Value ");
                             displaySTRING(str, stdout);
                             printf(" not found.\n");
                         }
                     }
                     else {
-                        temp = deleteGST(((GST *) tree), str);
+                        deleteGST(((GST *) tree), str);
                     }
 
                 }
